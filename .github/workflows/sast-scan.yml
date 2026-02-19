@@ -41,8 +41,28 @@ jobs:
           pytest test_app.py \
             --cov=. \
             --cov-report=xml:../coverage.xml \
+            --cov-report=term \
             -v
         continue-on-error: true
+
+      - name: Verify Coverage File
+        run: |
+          if [ -f "coverage.xml" ]; then
+            echo "✅ coverage.xml found"
+            echo "File size: $(wc -l < coverage.xml) lines"
+            echo "Coverage summary:"
+            head -3 coverage.xml | tail -1
+            echo ""
+            echo "File location: $(pwd)/coverage.xml"
+            echo "File permissions:"
+            ls -lh coverage.xml
+          else
+            echo "❌ ERROR: coverage.xml not found!"
+            echo "Current directory: $(pwd)"
+            echo "Files in root:"
+            ls -la
+            exit 1
+          fi
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
